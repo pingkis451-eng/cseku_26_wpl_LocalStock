@@ -271,4 +271,4 @@ This project is licensed under the [MIT License](./LICENSE).
 
 ---
 
-<p align="center">Built with ❤️ as part of a Web Development Course Project</p>
+
