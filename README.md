@@ -259,9 +259,9 @@ Please make sure your code follows the existing style and includes relevant test
 
 | Name | Role |
 |---|---|
-| _Your Name_ | Project Lead / Full-Stack Developer |
-| _Teammate Name_ | Frontend Developer |
-| _Teammate Name_ | Backend Developer |
+| _Pingki Sarder_ | Project Lead / Full-Stack Developer |
+| _Mometa Acter_ | Frontend Developer |
+
 
 ---
 
