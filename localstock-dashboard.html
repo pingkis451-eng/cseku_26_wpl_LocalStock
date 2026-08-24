@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Dashboard — LocalStock</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          paper: '#FBF6EA',
+          paper2: '#F3ECDA',
+          ink: '#1A2B27',
+          teal: { DEFAULT: '#0F5257', dark: '#0A3B3F', light: '#DCEAE8' },
+          marigold: { DEFAULT: '#E8A33D', dark: '#C97F1E' },
+          rust: '#C1541C',
+          stock: '#2F7D4F',
+          low: '#C97F1E',
+          off: '#9A3B3B',
+          ready: '#2B6CB0',
+        },
+        fontFamily: {
+          display: ['"Fraunces"', 'serif'],
+          body: ['"Inter"', 'sans-serif'],
+          mono: ['"Space Mono"', 'monospace'],
+        },
+      },
+    },
+  };
+</script>
+<style>
+  body { background-color: #FBF6EA; }
+
+  .tag {
+    position: relative;
+    clip-path: polygon(12px 0, 100% 0, 100% 100%, 12px 100%, 0 50%);
+    padding-left: 18px;
+  }
+  .tag::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 9999px;
+    background: currentColor;
+    opacity: .5;
+  }
+
+  .stitch { border-top: 2px dashed rgba(15,82,87,0.15); }
+  ::selection { background: #E8A33D; color: #1A2B27; }
+  .focus-ring:focus-visible { outline: 3px solid #C1541C; outline-offset: 2px; }
+
+  .nav-item[data-active="true"] {
+    background: #0F5257;
+    color: #FBF6EA;
+  }
+  .nav-item[data-active="false"] {
+    color: rgba(251,246,234,0.65);
+  }
+  .nav-item[data-active="false"]:hover {
+    background: rgba(251,246,234,0.08);
+    color: #FBF6EA;
+  }
+
+  #sidebar { transition: transform .25s ease; }
+  @media (max-width: 1023px) {
+    #sidebar { position: fixed; inset: 0 auto 0 0; transform: translateX(-100%); z-index: 50; }
+    #sidebar[data-open="true"] { transform: translateX(0); }
+  }
+
+  #review-modal { display: none; }
+  #review-modal[data-open="true"] { display: flex; }
+
+  .star-btn { transition: transform .1s ease; }
+  .star-btn:hover { transform: scale(1.15); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .rise { animation: rise .5s ease-out both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(8px);} to { opacity: 1; transform: translateY(0);} }
+  }
+</style>
+</head>
+<body class="font-body text-ink antialiased">
+
+  <div class="lg:flex min-h-screen">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside id="sidebar" data-open="false" class="w-72 shrink-0 bg-teal-dark text-paper flex flex-col">
+      <div class="px-6 py-6 flex items-center justify-between">
+        <a href="localstock-landing.html" class="flex items-center gap-2 focus-ring rounded">
+          <span class="w-9 h-9 rounded-full bg-marigold text-teal-dark flex items-center justify-center font-display font-bold text-lg">L</span>
+          <span class="font-display font-bold text-lg tracking-tight">LocalStock</span>
+        </a>
+        <button id="sidebar-close" class="lg:hidden text-paper/60 hover:text-paper focus-ring rounded" aria-label="Close menu">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+
+      <div class="px-6 py-4 flex items-center gap-3 stitch border-white/10">
+        <div class="w-11 h-11 rounded-full bg-marigold/90 flex items-center justify-center font-display font-bold text-teal-dark">P</div>
+        <div class="min-w-0">
+          <p class="text-sm font-semibold truncate">Piu Rahman</p>
+          <p class="text-xs text-paper/50 truncate">piu@example.com</p>
+        </div>
+      </div>
+
+      <nav class="flex-1 px-4 py-4 space-y-1 text-sm font-medium">
+        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl focus-ring" data-active="false">
+          <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" stroke-linecap="round"/></svg>
+          User Profile
+        </a>
+        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl focus-ring" data-active="true">
+          <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v3M16 3v3" stroke-linecap="round"/></svg>
+          My Reservations
+        </a>
+        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl focus-ring" data-active="false">
+          <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          Favorite Stores &amp; Products
+        </a>
+        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl focus-ring" data-active="false">
+          <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3" stroke-linecap="round"/></svg>
+          Recent Searches
+        </a>
+        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl focus-ring" data-active="false">
+          <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Settings
+        </a>
+      </nav>
+
+      <div class="px-4 py-5 stitch border-white/10">
+        <a href="localstock-login.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-paper/60 hover:text-paper hover:bg-white/5 transition focus-ring">
+          <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Log out
+        </a>
+      </div>
+    </aside>
+
+    <!-- backdrop for mobile sidebar -->
+    <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-ink/40 z-40 lg:hidden"></div>
+
+    <!-- ============ MAIN ============ -->
+    <main class="flex-1 min-w-0">
+
+      <!-- top bar -->
+      <header class="sticky top-0 z-30 bg-paper/95 backdrop-blur border-b border-teal/10">
+        <div class="px-5 md:px-8 py-4 flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <button id="sidebar-open" class="lg:hidden text-ink/60 hover:text-teal focus-ring rounded" aria-label="Open menu">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg>
+            </button>
+            <div>
+              <p class="font-mono text-xs font-bold text-rust tracking-wide">DASHBOARD</p>
+              <h1 class="font-display font-semibold text-2xl -mt-0.5">My Reservations</h1>
+            </div>
+          </div>
+          <a href="localstock-landing.html" class="hidden sm:inline-flex items-center gap-2 bg-teal text-white text-sm font-semibold px-4 py-2.5 rounded-full hover:bg-teal-dark transition focus-ring">
+            + New Search
+          </a>
+        </div>
+      </header>
+
+      <div class="px-5 md:px-8 py-8 max-w-6xl">
+
+        <!-- ============ OVERVIEW CARDS ============ -->
+        <section class="grid sm:grid-cols-3 gap-5 mb-10 rise">
+          <div class="bg-white rounded-2xl border border-teal/10 p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-marigold/20 text-marigold-dark flex items-center justify-center shrink-0">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v3M16 3v3" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <p class="font-display font-semibold text-3xl leading-none">3</p>
+              <p class="text-xs text-ink/50 mt-1.5">Active Reservations</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-teal/10 p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-stock/15 text-stock flex items-center justify-center shrink-0">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <p class="font-display font-semibold text-3xl leading-none">12</p>
+              <p class="text-xs text-ink/50 mt-1.5">Completed Holds</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-teal/10 p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-teal-light text-teal flex items-center justify-center shrink-0">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            </div>
+            <div>
+              <p class="font-display font-semibold text-3xl leading-none">7</p>
+              <p class="text-xs text-ink/50 mt-1.5">Saved Favorites</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ RESERVATIONS TABLE ============ -->
+        <section class="bg-white rounded-2xl border border-teal/10 overflow-hidden rise">
+          <div class="px-5 py-4 flex items-center justify-between stitch border-teal/10">
+            <p class="font-display font-semibold">All Reservations</p>
+            <span class="font-mono text-[11px] text-ink/40">7 total</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm min-w-[720px]">
+              <thead>
+                <tr class="text-left text-xs text-ink/40 uppercase tracking-wide">
+                  <th class="px-5 py-3 font-semibold">Product</th>
+                  <th class="px-5 py-3 font-semibold">Store</th>
+                  <th class="px-5 py-3 font-semibold">Status</th>
+                  <th class="px-5 py-3 font-semibold">Time Remaining</th>
+                  <th class="px-5 py-3 font-semibold text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-teal/5">
+
+                <!-- Pending -->
+                <tr>
+                  <td class="px-5 py-4 font-medium">Logitech K120 Keyboard</td>
+                  <td class="px-5 py-4 text-ink/60">Tech Point</td>
+                  <td class="px-5 py-4">
+                    <span class="tag bg-marigold/15 text-marigold-dark text-[11px] font-bold py-1 pr-3">PENDING</span>
+                  </td>
+                  <td class="px-5 py-4 font-mono text-xs countdown" data-expires-in-ms="16200000">—</td>
+                  <td class="px-5 py-4 text-right">
+                    <button class="text-xs font-semibold text-off hover:underline focus-ring rounded">Cancel Reservation</button>
+                  </td>
+                </tr>
+
+                <!-- Accepted -->
+                <tr>
+                  <td class="px-5 py-4 font-medium">Samsung 25W Charger</td>
+                  <td class="px-5 py-4 text-ink/60">Computer World</td>
+                  <td class="px-5 py-4">
+                    <span class="tag bg-teal-light text-teal-dark text-[11px] font-bold py-1 pr-3">ACCEPTED</span>
+                  </td>
+                  <td class="px-5 py-4 font-mono text-xs countdown" data-expires-in-ms="9000000">—</td>
+                  <td class="px-5 py-4 text-right">
+                    <button class="text-xs font-semibold text-off hover:underline focus-ring rounded">Cancel Reservation</button>
+                  </td>
+                </tr>
+
+                <!-- Ready for Pickup -->
+                <tr>
+                  <td class="px-5 py-4 font-medium">HP 65W Laptop Charger</td>
+                  <td class="px-5 py-4 text-ink/60">Digital Zone</td>
+                  <td class="px-5 py-4">
+                    <span class="tag bg-ready/15 text-ready text-[11px] font-bold py-1 pr-3">READY FOR PICKUP</span>
+                  </td>
+                  <td class="px-5 py-4 font-mono text-xs countdown" data-expires-in-ms="2700000">—</td>
+                  <td class="px-5 py-4 text-right">
+                    <button class="text-xs font-semibold text-off hover:underline focus-ring rounded">Cancel Reservation</button>
+                  </td>
+                </tr>
+
+                <!-- Completed (review target) -->
+                <tr>
+                  <td class="px-5 py-4 font-medium">Wireless Mouse M185</td>
+                  <td class="px-5 py-4 text-ink/60">Tech Point</td>
+                  <td class="px-5 py-4">
+                    <span class="tag bg-stock/15 text-stock text-[11px] font-bold py-1 pr-3">COMPLETED</span>
+                  </td>
+                  <td class="px-5 py-4 text-xs text-ink/40">Picked up Aug 21</td>
+                  <td class="px-5 py-4 text-right">
+                    <button class="open-review text-xs font-semibold text-teal hover:underline focus-ring rounded" data-product="Wireless Mouse M185" data-store="Tech Point">
+                      Rate &amp; Review Store
+                    </button>
+                  </td>
+                </tr>
+
+                <!-- Completed, already reviewed -->
+                <tr>
+                  <td class="px-5 py-4 font-medium">Type-C Fast Charger</td>
+                  <td class="px-5 py-4 text-ink/60">Computer World</td>
+                  <td class="px-5 py-4">
+                    <span class="tag bg-stock/15 text-stock text-[11px] font-bold py-1 pr-3">COMPLETED</span>
+                  </td>
+                  <td class="px-5 py-4 text-xs text-ink/40">Picked up Aug 18</td>
+                  <td class="px-5 py-4 text-right">
+                    <span class="text-xs text-ink/35 inline-flex items-center gap-1">★★★★★ &nbsp;reviewed</span>
+                  </td>
+                </tr>
+
+                <!-- Expired -->
+                <tr>
+                  <td class="px-5 py-4 font-medium text-ink/50">Laptop Bag 15.6"</td>
+                  <td class="px-5 py-4 text-ink/40">Digital Zone</td>
+                  <td class="px-5 py-4">
+                    <span class="tag bg-ink/10 text-ink/45 text-[11px] font-bold py-1 pr-3">EXPIRED</span>
+                  </td>
+                  <td class="px-5 py-4 text-xs text-ink/35">Not collected in time</td>
+                  <td class="px-5 py-4 text-right">
+                    <span class="text-xs text-ink/30">Stock released</span>
+                  </td>
+                </tr>
+
+                <!-- Rejected -->
+                <tr>
+                  <td class="px-5 py-4 font-medium text-ink/50">Anker Power Bank 10K</td>
+                  <td class="px-5 py-4 text-ink/40">Digital Zone</td>
+                  <td class="px-5 py-4">
+                    <span class="tag bg-off/10 text-off text-[11px] font-bold py-1 pr-3">REJECTED</span>
+                  </td>
+                  <td class="px-5 py-4 text-xs text-ink/35">Out of stock at store</td>
+                  <td class="px-5 py-4 text-right">
+                    <span class="text-xs text-ink/30">—</span>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <p class="text-xs text-ink/40 mt-6">
+          Reservations are held for 24 hours from request time. Uncollected items are released back to the store automatically — no charge either way.
+        </p>
+      </div>
+    </main>
+  </div>
+
+  <!-- ============ REVIEW MODAL ============ -->
+  <div id="review-modal" data-open="false" class="fixed inset-0 z-50 items-center justify-center bg-ink/50 backdrop-blur-sm px-5">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-7 relative rise">
+      <button id="review-close" class="absolute top-5 right-5 text-ink/40 hover:text-ink focus-ring rounded" aria-label="Close">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/></svg>
+      </button>
+
+      <p class="font-mono text-xs font-bold text-rust tracking-wide mb-1">RATE YOUR PICKUP</p>
+      <h2 class="font-display font-semibold text-xl mb-1" id="review-product">Wireless Mouse M185</h2>
+      <p class="text-sm text-ink/50 mb-5" id="review-store">from Tech Point</p>
+
+      <div class="flex gap-1.5 mb-5" id="star-picker">
+        <button type="button" class="star-btn text-3xl text-ink/20 focus-ring rounded" data-star="1">★</button>
+        <button type="button" class="star-btn text-3xl text-ink/20 focus-ring rounded" data-star="2">★</button>
+        <button type="button" class="star-btn text-3xl text-ink/20 focus-ring rounded" data-star="3">★</button>
+        <button type="button" class="star-btn text-3xl text-ink/20 focus-ring rounded" data-star="4">★</button>
+        <button type="button" class="star-btn text-3xl text-ink/20 focus-ring rounded" data-star="5">★</button>
+      </div>
+
+      <label for="review-text" class="block text-xs font-semibold text-ink/70 mb-1.5">Your review</label>
+      <textarea id="review-text" rows="4" placeholder="How was the product and the pickup experience?"
+        class="w-full text-sm bg-paper2 border border-teal/15 rounded-xl px-4 py-3 placeholder:text-ink/35 focus:border-teal focus:bg-white transition focus-ring resize-none"></textarea>
+
+      <button id="review-submit" class="w-full mt-5 bg-teal hover:bg-teal-dark transition text-white text-sm font-semibold rounded-xl py-3 focus-ring">
+        Submit Review
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // ---- sidebar toggle (mobile) ----
+    const sidebar = document.getElementById('sidebar');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    document.getElementById('sidebar-open').addEventListener('click', () => {
+      sidebar.dataset.open = 'true';
+      backdrop.classList.remove('hidden');
+    });
+    document.getElementById('sidebar-close').addEventListener('click', closeSidebar);
+    backdrop.addEventListener('click', closeSidebar);
+    function closeSidebar() {
+      sidebar.dataset.open = 'false';
+      backdrop.classList.add('hidden');
+    }
+
+    // ---- live countdown timers ----
+    const now = Date.now();
+    document.querySelectorAll('.countdown').forEach(el => {
+      const target = now + parseInt(el.dataset.expiresInMs, 10);
+      function tick() {
+        const diff = target - Date.now();
+        if (diff <= 0) {
+          el.textContent = 'Expiring…';
+          el.classList.add('text-off');
+          return;
+        }
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        el.textContent = `${h}h ${m}m left`;
+        el.classList.toggle('text-off', h < 1);
+        el.classList.toggle('text-low', h >= 1 && h < 3);
+      }
+      tick();
+      setInterval(tick, 30000);
+    });
+
+    // ---- review modal ----
+    const modal = document.getElementById('review-modal');
+    const reviewProduct = document.getElementById('review-product');
+    const reviewStore = document.getElementById('review-store');
+    const stars = document.querySelectorAll('.star-btn');
+    let selectedRating = 0;
+
+    document.querySelectorAll('.open-review').forEach(btn => {
+      btn.addEventListener('click', () => {
+        reviewProduct.textContent = btn.dataset.product;
+        reviewStore.textContent = 'from ' + btn.dataset.store;
+        selectedRating = 0;
+        paintStars(0);
+        modal.dataset.open = 'true';
+      });
+    });
+
+    document.getElementById('review-close').addEventListener('click', () => modal.dataset.open = 'false');
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.dataset.open = 'false'; });
+
+    function paintStars(rating) {
+      stars.forEach(s => {
+        const active = parseInt(s.dataset.star, 10) <= rating;
+        s.classList.toggle('text-marigold', active);
+        s.classList.toggle('text-ink/20', !active);
+      });
+    }
+
+    stars.forEach(s => {
+      s.addEventListener('mouseenter', () => paintStars(parseInt(s.dataset.star, 10)));
+      s.addEventListener('mouseleave', () => paintStars(selectedRating));
+      s.addEventListener('click', () => {
+        selectedRating = parseInt(s.dataset.star, 10);
+        paintStars(selectedRating);
+      });
+    });
+
+    document.getElementById('review-submit').addEventListener('click', () => {
+      modal.dataset.open = 'false';
+    });
+  </script>
+
+</body>
+</html>
