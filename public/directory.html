@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Store Directory — LocalStock</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: {
+      paper: '#FBF6EA', ink: '#1A2B27',
+      teal: { DEFAULT: '#0F5257', dark: '#0A3B3F', light: '#DCEAE8' },
+      marigold: { DEFAULT: '#E8A33D', dark: '#C97F1E' }, rust: '#C1541C',
+    }, fontFamily: { display: ['"Fraunces"', 'serif'], body: ['"Inter"', 'sans-serif'] } } }
+  };
+</script>
+</head>
+<body class="font-body text-ink bg-paper antialiased min-h-screen flex flex-col">
+  <div class="h-1.5 w-full" style="background-image: repeating-linear-gradient(45deg, #E8A33D, #E8A33D 18px, #0F5257 18px, #0F5257 36px);"></div>
+
+  <header class="max-w-7xl mx-auto w-full px-5 md:px-8 py-6 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-2">
+      <span class="w-9 h-9 rounded-full bg-teal text-paper flex items-center justify-center font-display font-bold text-lg">L</span>
+      <span class="font-display font-bold text-xl tracking-tight text-teal-dark">LocalStock</span>
+    </a>
+    <a href="/login" class="text-sm font-semibold text-ink/70 hover:text-teal">Login / Register</a>
+  </header>
+
+  <main class="flex-1 max-w-3xl mx-auto w-full px-5 md:px-8 py-16 text-center">
+    <p class="font-mono text-xs font-bold text-rust tracking-wide mb-2">STORE DIRECTORY</p>
+    <h1 class="font-display font-semibold text-3xl mb-4">This page is coming together.</h1>
+    <p class="text-ink/60 max-w-md mx-auto">
+      The full store directory (search, filters, map view, ratings) is served from this route — wire it up to
+      <code class="bg-white px-1.5 py-0.5 rounded text-sm">GET /directory</code>
+      once the store/product API endpoints are ready.
+    </p>
+    <a href="/" class="inline-block mt-8 text-sm font-semibold bg-teal text-white px-5 py-2.5 rounded-full hover:bg-teal-dark transition">← Back to Home</a>
+  </main>
+</body>
+</html>
